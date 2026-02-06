@@ -1,11 +1,11 @@
 === WP Snow Effect ===
 Contributors: WPManiax 
 Donate link: http://www.wpmaniax.com/ 
-Tags: snow effect, christmas, christmas snow, falling snow, holiday, holiday snow, jquery snow, jsnow, let it snow, snow, snow balls, snow effect, snow effects, Snow Flakes, snowball, snowflake, snowing, super snow, supersnow, wp snow
+Tags: Christmas, snow, holiday, snow effect, snowflake
 Requires at least: 3.6
-Tested up to: 5.5.3
+Tested up to: 6.9
 Requires PHP: 5.6
-Stable tag: 1.1.15
+Stable tag: 1.1.19
 License:GPL2
  
 Add nice looking animation effect of falling snow to your Wordpress site and enjoy winter and Christmas.
@@ -59,6 +59,21 @@ This snow falling WP plugin uses jSnow JQuery plugin (2kb only) and no images.
 3. Settings page
 
 == Changelog ==
+
+= 1.1.19 =
+* added bundled translations for multiple languages (French, Norwegian, Danish, Finnish, Czech, Polish, Spanish, Portuguese, Dutch)
+* generated a fresh POT template file for translators
+
+= 1.1.18 =
+* improved page detection for home, posts index and pages to better support custom themes
+* treated separate blog index as part of "Posts" visibility option
+* made specific page slug handling more robust using the queried object slug
+
+= 1.1.17 =
+* fixed security issues and warnings
+
+= 1.1.16 =
+* tested compatibility for WordPress 6.8.3
 
 = 1.1.15 =
 * fixed jQuery 3.1 incompatibility in admin file
@@ -124,6 +139,18 @@ This snow falling WP plugin uses jSnow JQuery plugin (2kb only) and no images.
 * initial release 
 
 == Upgrade Notice ==
+
+= 1.1.19 =
+* added bundled translations for several languages and refreshed the translation template
+
+= 1.1.18 =
+* improved visibility logic for homepage, posts index and specific pages, fixing display issues on some themes
+
+= 1.1.17 =
+* fixed security issues and warnings
+
+= 1.1.16 =
+* tested compatibility for WordPress 6.8.3
 
 = 1.1.15 =
 * fixed jQuery 3.1 incompatibility in admin file

@@ -82,6 +82,7 @@ if( !class_exists('WordPressSettingsFramework') ){
                 add_action( 'admin_init',                                     array( $this, 'admin_init') );                
                 add_action( 'wpsf_do_settings_sections_'.$this->option_group, array( $this, 'do_tabless_settings_sections'), 10 );
                 
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 if( isset( $_GET['page'] ) && $_GET['page'] === $this->settings_page['slug'] ) {
                     
                     if( $pagenow !== "options-general.php" ) add_action( 'admin_notices', array( $this, 'admin_notices') );
@@ -115,7 +116,7 @@ if( !class_exists('WordPressSettingsFramework') ){
             $this->settings_wrapper = apply_filters( 'wpsf_register_settings_'.$this->option_group, $this->settings_wrapper );
             
             if( !is_array($this->settings_wrapper) ){
-                return new WP_Error( 'broke', __( 'WPSF settings must be an array' ) );
+                return new WP_Error( 'broke', __( 'WPSF settings must be an array', 'wp-snow-effect' ) );
             }
             
             // If "sections" is set, this settings group probably has tabs
@@ -209,7 +210,7 @@ if( !class_exists('WordPressSettingsFramework') ){
             ?>
     		<div class="wrap">
     			<div id="icon-options-general" class="icon32"></div>
-    			<h2><?php echo $this->settings_page['title']; ?></h2>
+    			<h2><?php echo esc_html( $this->settings_page['title'] ); ?></h2>
     			<?php    			
     			// Output your settings form
     			$this->settings();
@@ -251,6 +252,7 @@ if( !class_exists('WordPressSettingsFramework') ){
          */
     	public function settings_validate( $input ) {
         	
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
     		return apply_filters( $this->option_group .'_settings_validate', $input );
     		
     	}
@@ -268,7 +270,7 @@ if( !class_exists('WordPressSettingsFramework') ){
             		
                     if($section['section_id'] == $args['id']){
                         
-                        if(isset($section['section_description']) && $section['section_description']) echo '<p class="wpsf-section-description">'. $section['section_description'] .'</p>';
+                        if(isset($section['section_description']) && $section['section_description']) echo '<p class="wpsf-section-description">'. wp_kses_post( $section['section_description'] ) .'</p>';
                         break;
                         
                     }
@@ -349,67 +351,67 @@ if( !class_exists('WordPressSettingsFramework') ){
         	do_action( 'wpsf_before_field__'.$this->option_group. $el_id );
     		switch( $type ){
     		    case 'text':
-    		        $val = esc_attr(stripslashes($val));
-    		        echo '<input type="text" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" value="'. $val .'" placeholder="'. $placeholder .'" class="regular-text '. $class .'" />';
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        $val = stripslashes($val);
+    		        echo '<input type="text" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" value="'. esc_attr( $val ) .'" placeholder="'. esc_attr( $placeholder ) .'" class="regular-text '. esc_attr( $class ) .'" />';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
                 case 'password':
-                    $val = esc_attr(stripslashes($val));
-                    echo '<input type="password" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" value="'. $val .'" placeholder="'. $placeholder .'" class="regular-text '. $class .'" />';
-                    if($desc)  echo '<p class="description">'. $desc .'</p>';
+                    $val = stripslashes($val);
+                    echo '<input type="password" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" value="'. esc_attr( $val ) .'" placeholder="'. esc_attr( $placeholder ) .'" class="regular-text '. esc_attr( $class ) .'" />';
+                    if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
                     break;
     		    case 'textarea':
-    		        $val = esc_html(stripslashes($val));
-    		        echo '<textarea name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" placeholder="'. $placeholder .'" rows="5" cols="60" class="'. $class .'">'. $val .'</textarea>';
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        $val = stripslashes($val);
+    		        echo '<textarea name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" placeholder="'. esc_attr( $placeholder ) .'" rows="5" cols="60" class="'. esc_attr( $class ) .'">'. esc_textarea( $val ) .'</textarea>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
     		    case 'select':
-    		        $val = esc_html(esc_attr($val));
-    		        echo '<select name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" class="'. $class .'">';
+    		        $val = esc_attr($val);
+    		        echo '<select name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" class="'. esc_attr( $class ) .'">';
     		        foreach($choices as $ckey=>$cval){
-        		        echo '<option value="'. $ckey .'"'. (($ckey == $val) ? ' selected="selected"' : '') .'>'. $cval .'</option>';
+        		        echo '<option value="'. esc_attr( $ckey ) .'"'. selected( $ckey, $val, false ) .'>'. esc_html( $cval ) .'</option>';
     		        }
     		        echo '</select>';
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
     		    case 'radio':
-    		        $val = esc_html(esc_attr($val));
+    		        $val = esc_attr($val);
     		        foreach($choices as $ckey=>$cval){
-        		        echo '<label><input type="radio" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'_'. $ckey .'" value="'. $ckey .'" class="'. $class .'"'. (($ckey == $val) ? ' checked="checked"' : '') .' /> '. $cval .'</label><br />';
+        		        echo '<label><input type="radio" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id .'_'. $ckey ) .'" value="'. esc_attr( $ckey ) .'" class="'. esc_attr( $class ) .'"'. checked( $ckey, $val, false ) .' /> '. esc_html( $cval ) .'</label><br />';
     		        }
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
     		    case 'checkbox':
-    		        $val = esc_attr(stripslashes($val));
-    		        echo '<input type="hidden" name="'. $this->option_group .'_settings['. $el_id .']" value="0" />';
-    		        echo '<label><input type="checkbox" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" value="1" class="'. $class .'"'. (($val) ? ' checked="checked"' : '') .' /> '. $desc .'</label>';
+    		        $val = stripslashes($val);
+    		        echo '<input type="hidden" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" value="0" />';
+    		        echo '<label><input type="checkbox" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" value="1" class="'. esc_attr( $class ) .'"'. checked( $val, 1, false ) .' /> '. wp_kses_post( $desc ) .'</label>';
     		        break;
     		    case 'checkboxes':
     		        foreach($choices as $ckey=>$cval){
     		            $val = '';
     		            if(isset($options[$el_id .'_'. $ckey])) $val = $options[$el_id .'_'. $ckey];
     		            elseif(is_array($std) && in_array($ckey, $std)) $val = $ckey;
-    		            $val = esc_html(esc_attr($val));
-        		        echo '<input type="hidden" name="'. $this->option_group .'_settings['. $el_id .'_'. $ckey .']" value="0" />';
-        		        echo '<label><input type="checkbox" name="'. $this->option_group .'_settings['. $el_id .'_'. $ckey .']" id="'. $el_id .'_'. $ckey .'" value="'. $ckey .'" class="'. $class .'"'. (($ckey == $val) ? ' checked="checked"' : '') .' /> '. $cval .'</label><br />';
+    		            $val = esc_attr($val);
+        		        echo '<input type="hidden" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id .'_'. $ckey ) .']" value="0" />';
+        		        echo '<label><input type="checkbox" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id .'_'. $ckey ) .']" id="'. esc_attr( $el_id .'_'. $ckey ) .'" value="'. esc_attr( $ckey ) .'" class="'. esc_attr( $class ) .'"'. checked( $ckey, $val, false ) .' /> '. esc_html( $cval ) .'</label><br />';
     		        }
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
     		    case 'color':
-                    $val = esc_attr(stripslashes($val));
+                    $val = stripslashes($val);
                     echo '<div style="position:relative;">';
-    		        echo '<input type="text" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" value="'. $val .'" class="'. $class .'" />';
-    		        echo '<div id="'. $el_id .'_cp" style="position:absolute;top:0;left:190px;background:#fff;z-index:9999;"></div>';
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        echo '<input type="text" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" value="'. esc_attr( $val ) .'" class="'. esc_attr( $class ) .'" />';
+    		        echo '<div id="'. esc_attr( $el_id ) .'_cp" style="position:absolute;top:0;left:190px;background:#fff;z-index:9999;"></div>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        echo '<script type="text/javascript">
     		        jQuery(document).ready(function($){
-                        var colorPicker = $("#'. $el_id .'_cp");
-                        colorPicker.farbtastic("#'. $el_id .'");
+                        var colorPicker = $("#'. esc_attr( $el_id ) .'_cp");
+                        colorPicker.farbtastic("#'. esc_attr( $el_id ) .'");
                         colorPicker.hide();
-                        $("#'. $el_id .'").live("focus", function(){
+                        $("#'. esc_attr( $el_id ) .'").live("focus", function(){
                             colorPicker.show();
                         });
-                        $("#'. $el_id .'").live("blur", function(){
+                        $("#'. esc_attr( $el_id ) .'").live("blur", function(){
                             colorPicker.hide();
                             if($(this).val() == "") $(this).val("#");
                         });
@@ -417,17 +419,17 @@ if( !class_exists('WordPressSettingsFramework') ){
                     </script></div>';
     		        break;
     		    case 'file':
-                    $val = esc_attr($val);
-    		        echo '<input type="text" name="'. $this->option_group .'_settings['. $el_id .']" id="'. $el_id .'" value="'. $val .'" class="regular-text '. $class .'" /> ';
-                    echo '<input type="button" class="button wpsf-browse" id="'. $el_id .'_button" value="Browse" />';
+                    $val = $val;
+    		        echo '<input type="text" name="'. esc_attr( $this->option_group ) .'_settings['. esc_attr( $el_id ) .']" id="'. esc_attr( $el_id ) .'" value="'. esc_attr( $val ) .'" class="regular-text '. esc_attr( $class ) .'" /> ';
+                    echo '<input type="button" class="button wpsf-browse" id="'. esc_attr( $el_id ) .'_button" value="Browse" />';
                     echo '<script type="text/javascript">
                     jQuery(document).ready(function($){
-                		$("#'. $el_id .'_button").click(function() {
+                		$("#'. esc_attr( $el_id ) .'_button").click(function() {
                 			tb_show("", "media-upload.php?post_id=0&amp;type=image&amp;TB_iframe=true");
                 			window.original_send_to_editor = window.send_to_editor;
                         	window.send_to_editor = function(html) {
                         		var imgurl = $("img",html).attr("src");
-                        		$("#'. $el_id .'").val(imgurl);
+                        		$("#'. esc_attr( $el_id ) .'").val(imgurl);
                         		tb_remove();
                         		window.send_to_editor = window.original_send_to_editor;
                         	};
@@ -438,10 +440,10 @@ if( !class_exists('WordPressSettingsFramework') ){
                     break;
                 case 'editor':
     		        wp_editor( $val, $el_id, array( 'textarea_name' => $this->option_group .'_settings['. $el_id .']' ) );
-    		        if($desc)  echo '<p class="description">'. $desc .'</p>';
+    		        if($desc)  echo '<p class="description">'. wp_kses_post( $desc ) .'</p>';
     		        break;
     		    case 'custom':
-    		        echo $std;
+    		        echo wp_kses_post( $std );
     		        break;
         		default:
         		    break;
@@ -464,7 +466,7 @@ if( !class_exists('WordPressSettingsFramework') ){
                 
                 <?php do_action( 'wpsf_do_settings_sections_'.$this->option_group ); ?>
                 
-        		<p class="submit"><input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ); ?>" /></p>
+        		<p class="submit"><input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'wp-snow-effect' ); ?>" /></p>
 			</form>
     		<?php
     		do_action( 'wpsf_after_settings_'.$this->option_group );
@@ -490,7 +492,7 @@ if( !class_exists('WordPressSettingsFramework') ){
             $i = 0; 
             foreach ( $this->tabs as $tab_data ) {
                 ?>
-            	<div id="tab-<?php echo $tab_data['id']; ?>" class="wpsf-tab wpsf-tab--<?php echo $tab_data['id']; ?> <?php if($i == 0) echo 'wpsf-tab--active'; ?>">
+            	<div id="tab-<?php echo esc_attr( $tab_data['id'] ); ?>" class="wpsf-tab wpsf-tab--<?php echo esc_attr( $tab_data['id'] ); ?> <?php if($i == 0) echo 'wpsf-tab--active'; ?>">
             		<div class="postbox">
             			<?php do_settings_sections( sprintf( '%s_%s', $this->option_group, $tab_data['id'] ) ); ?>
             		</div>
@@ -508,7 +510,7 @@ if( !class_exists('WordPressSettingsFramework') ){
             
             do_action( 'wpsf_before_tab_links_'.$this->option_group );
 
-            if ( function_exists('screen_icon') ) screen_icon();				    
+            // if ( function_exists('screen_icon') ) screen_icon();				    
 		    ?>
 		    <h2 class="nav-tab-wrapper">
     		    <?php
@@ -516,7 +518,7 @@ if( !class_exists('WordPressSettingsFramework') ){
                 foreach ( $this->tabs as $tab_data ) {
     		        $active = $i == 0 ? 'nav-tab-active' : ''; 
     		        ?>
-    		        <a class="nav-tab wpsf-tab-link <?php echo $active; ?>" href="#tab-<?php echo $tab_data['id']; ?>"><?php echo $tab_data['title']; ?></a>
+    		        <a class="nav-tab wpsf-tab-link <?php echo esc_attr( $active ); ?>" href="#tab-<?php echo esc_attr( $tab_data['id'] ); ?>"><?php echo esc_html( $tab_data['title'] ); ?></a>
                     <?php 
                 $i++;
                 }
@@ -652,7 +654,7 @@ if( !class_exists('WordPressSettingsFramework') ){
          * Output the opening tab wrapper
          */        
         public function open_tab_wrapper( $section ) {
-            echo '<pre>'; print_r($section['tab_id']); echo '</pre>'; 
+            // echo '<pre>'; print_r($section['tab_id']); echo '</pre>'; 
         }
         
         /**

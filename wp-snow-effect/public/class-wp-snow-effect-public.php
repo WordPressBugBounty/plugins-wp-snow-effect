@@ -100,15 +100,56 @@ class Wp_Snow_Effect_Public
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script('jsnow', plugin_dir_url(__FILE__) . 'js/jsnow.js', array('jquery'), '1.5');
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wp-snow-effect-public.js', array('jquery'), $this->version, false);
+        wp_enqueue_script('jsnow', plugin_dir_url(__FILE__) . 'js/jsnow.js', array('jquery'), '1.5', true);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wp-snow-effect-public.js', array('jquery'), $this->version, true);
 
         $show = true;
-        if (wp_is_mobile() && $this->settings['settings_show_on_mobile'] != 'mobile') $show = false;
-        if (is_home() && $this->settings['settings_show_on_home'] != 'home') $show = false;
-        if (is_page() && $this->settings['settings_show_on_pages'] != 'pages') $show = false;
-        if (is_single() && $this->settings['settings_show_on_posts'] != 'posts') $show = false;
-        if (is_archive() && $this->settings['settings_show_on_archives'] != 'archives') $show = false;
+
+        // General location rules
+        // "Home Page" checkbox: control only the actual front page.
+        if (is_front_page() && $this->settings['settings_show_on_home'] != 'home') {
+            $show = false;
+        }
+        // "Pages" checkbox: all pages except the front page.
+        if (is_page() && !is_front_page() && $this->settings['settings_show_on_pages'] != 'pages') {
+            $show = false;
+        }
+        // "Posts" checkbox: single posts and the posts index (blog page).
+        if (is_single() && $this->settings['settings_show_on_posts'] != 'posts') {
+            $show = false;
+        }
+        // Blog index when a separate Posts page is set.
+        if (is_home() && !is_front_page() && $this->settings['settings_show_on_posts'] != 'posts') {
+            $show = false;
+        }
+        if (is_archive() && $this->settings['settings_show_on_archives'] != 'archives') {
+            $show = false;
+        }
+
+        // Specific page slug(s) override the general rules.
+        if (!empty($this->settings['settings_on_spec_page'])) {
+            $pages = array_map('trim', explode(',', $this->settings['settings_on_spec_page']));
+            $pages = array_filter($pages);
+
+            if (count($pages) > 0) {
+                $current_slug = '';
+                $queried_object = get_queried_object();
+
+                // Try to get the current post/page slug in a theme-agnostic way.
+                if (is_object($queried_object) && !empty($queried_object->post_name)) {
+                    $current_slug = $queried_object->post_name;
+                }
+
+                if ($current_slug && in_array($current_slug, $pages, true)) {
+                    $show = true;
+                }
+            }
+        }
+
+        // Mobile devices rule applied last.
+        if (wp_is_mobile() && $this->settings['settings_show_on_mobile'] != 'mobile') {
+            $show = false;
+        }
 
         wp_localize_script($this->plugin_name, 'snoweffect', array(
             'show' => $show,
